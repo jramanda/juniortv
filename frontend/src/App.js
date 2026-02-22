@@ -1,52 +1,57 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
-
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
-
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
+import React, { useState, useEffect } from 'react';
+import './App.css';
+import Header from './components/Header';
+import Navigation from './components/Navigation';
+import Dashboard from './components/Dashboard';
+import Favorites from './components/Favorites';
+import Signals from './components/Signals';
+import { Toaster } from './components/ui/toaster';
 
 function App() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [favorites, setFavorites] = useState({
+    matches: [],
+    leagues: [],
+  });
+
+  // Load favorites from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('favorites');
+    if (stored) {
+      setFavorites(JSON.parse(stored));
+    }
+  }, []);
+
+  // Save favorites to localStorage
+  useEffect(() => {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  }, [favorites]);
+
+  const toggleFavorite = (matchId) => {
+    setFavorites((prev) => {
+      const newMatches = prev.matches?.includes(matchId)
+        ? prev.matches.filter((id) => id !== matchId)
+        : [...(prev.matches || []), matchId];
+      return { ...prev, matches: newMatches };
+    });
+  };
+
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+    <div className="App min-h-screen bg-gradient-to-br from-[#08252b] to-[#0a2f35]">
+      <Header />
+      <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      <main>
+        {activeTab === 'dashboard' && (
+          <Dashboard favorites={favorites} onToggleFavorite={toggleFavorite} />
+        )}
+        {activeTab === 'favorites' && (
+          <Favorites favorites={favorites} onToggleFavorite={toggleFavorite} />
+        )}
+        {activeTab === 'signals' && <Signals />}
+      </main>
+
+      <Toaster />
     </div>
   );
 }
