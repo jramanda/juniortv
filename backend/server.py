@@ -200,7 +200,7 @@ async def save_telegram_config(config: TelegramConfigCreate):
     if existing:
         await db.telegram_config.update_one({}, {"$set": doc})
     else:
-        await db.telegram_config.insert_one(doc)
+        await db.telegram_config.insert_one(doc.copy())
     
     return {"success": True, "message": "Telegram configuration saved"}
 
