@@ -1,29 +1,40 @@
-import React from 'react';
-import { TrendingUp, Send, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { TrendingUp, Send, CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useToast } from '../hooks/use-toast';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const SignalCard = ({ signal }) => {
   const { toast } = useToast();
+  const [sending, setSending] = useState(false);
 
-  const handleSendToTelegram = () => {
-    const token = localStorage.getItem('telegram_token');
-    const chatId = localStorage.getItem('telegram_chat_id');
+  const handleSendToTelegram = async () => {
+    setSending(true);
 
-    if (!token || !chatId) {
+    try {
+      const response = await axios.post(`${API}/telegram/send-signal`, {
+        signal_id: String(signal.id),
+      });
+
+      if (response.data.success) {
+        toast({
+          title: 'Sinal enviado!',
+          description: 'Sinal enviado para o Telegram com sucesso',
+        });
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.detail || 'Erro ao enviar sinal';
       toast({
-        title: 'Configuração necessária',
-        description: 'Configure seu Telegram Bot nas configurações',
+        title: 'Erro',
+        description: errorMsg,
         variant: 'destructive',
       });
-      return;
+    } finally {
+      setSending(false);
     }
-
-    // Mock do envio
-    toast({
-      title: 'Sinal enviado!',
-      description: `Sinal enviado para o Telegram com sucesso`,
-    });
   };
 
   const getProbabilityColor = (prob) => {
@@ -80,10 +91,20 @@ const SignalCard = ({ signal }) => {
       <div className="flex gap-2 pt-2">
         <Button
           onClick={handleSendToTelegram}
+          disabled={sending}
           className="flex-1 bg-[#229ED9] hover:bg-[#1a7fb8] text-white"
         >
-          <Send className="w-4 h-4 mr-2" />
-          Enviar para Telegram
+          {sending ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Enviando...
+            </>
+          ) : (
+            <>
+              <Send className="w-4 h-4 mr-2" />
+              Enviar para Telegram
+            </>
+          )}
         </Button>
       </div>
 

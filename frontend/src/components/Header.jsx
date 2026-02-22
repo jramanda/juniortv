@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Bell, Settings, Star } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Bell, Settings } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import {
@@ -12,14 +12,38 @@ import {
 } from './ui/dialog';
 import { Label } from './ui/label';
 import { useToast } from '../hooks/use-toast';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const Header = () => {
   const [telegramToken, setTelegramToken] = useState('');
   const [chatId, setChatId] = useState('');
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSaveConfig = () => {
+  // Carrega configuração existente ao abrir modal
+  useEffect(() => {
+    if (isOpen) {
+      loadConfig();
+    }
+  }, [isOpen]);
+
+  const loadConfig = async () => {
+    try {
+      const response = await axios.get(`${API}/telegram/config`);
+      if (response.data.configured) {
+        setChatId(response.data.chat_id);
+        // Token virá mascarado, então mantemos vazio para o usuário inserir novamente se quiser
+      }
+    } catch (error) {
+      console.error('Erro ao carregar configuração:', error);
+    }
+  };
+
+  const handleSaveConfig = async () => {
     if (!telegramToken || !chatId) {
       toast({
         title: 'Erro',
@@ -29,15 +53,32 @@ const Header = () => {
       return;
     }
 
-    // Salvar no localStorage por enquanto (mock)
-    localStorage.setItem('telegram_token', telegramToken);
-    localStorage.setItem('telegram_chat_id', chatId);
+    setLoading(true);
 
-    toast({
-      title: 'Configuração salva!',
-      description: 'Telegram Bot configurado com sucesso',
-    });
-    setIsOpen(false);
+    try {
+      const response = await axios.post(`${API}/telegram/config`, {
+        telegram_token: telegramToken,
+        chat_id: chatId,
+      });
+
+      if (response.data.success) {
+        toast({
+          title: 'Sucesso!',
+          description: response.data.message,
+        });
+        setIsOpen(false);
+        setTelegramToken('');
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.detail || 'Erro ao salvar configuração';
+      toast({
+        title: 'Erro',
+        description: errorMsg,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -114,9 +155,10 @@ const Header = () => {
                   </div>
                   <Button
                     onClick={handleSaveConfig}
+                    disabled={loading}
                     className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
-                    Salvar Configuração
+                    {loading ? 'Salvando...' : 'Salvar Configuração'}
                   </Button>
                 </div>
               </DialogContent>
