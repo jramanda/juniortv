@@ -154,10 +154,26 @@ TEAMS_BY_LEAGUE = {
     ],
 }
 
+# Cache for consistent match data
+_match_cache = {"matches": None, "generated_at": None}
+
 def generate_mock_matches() -> List[dict]:
     """Generate realistic mock matches for today and tomorrow"""
+    global _match_cache
+    
+    # Use cached data if generated within last hour
+    now = datetime.now(timezone.utc)
+    if _match_cache["matches"] is not None and _match_cache["generated_at"] is not None:
+        time_diff = (now - _match_cache["generated_at"]).total_seconds()
+        if time_diff < 3600:  # 1 hour cache
+            return _match_cache["matches"]
+    
+    # Seed random for consistent results within the same day
+    day_seed = int(now.strftime("%Y%m%d"))
+    random.seed(day_seed)
+    
     matches = []
-    today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     
     for league in LEAGUES:
         teams = TEAMS_BY_LEAGUE.get(league["id"], [])
@@ -237,6 +253,14 @@ def generate_mock_matches() -> List[dict]:
     
     # Sort by match date
     matches.sort(key=lambda x: x["match_date"])
+    
+    # Cache the results
+    _match_cache["matches"] = matches
+    _match_cache["generated_at"] = now
+    
+    # Reset random seed
+    random.seed()
+    
     return matches
 
 # ============ API ROUTES ============
@@ -350,6 +374,10 @@ async def send_telegram_message(message_data: TelegramMessage):
     bot_token = config["bot_token"]
     group_id = config["group_id"]
     
+    # Validate token format
+    if not bot_token or len(bot_token) < 30:
+        raise HTTPException(status_code=400, detail="Token do bot invalido. Verifique a configuracao.")
+    
     # Build message
     message = message_data.message
     
@@ -370,36 +398,47 @@ async def send_telegram_message(message_data: TelegramMessage):
     telegram_url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     
     try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
+        async with httpx.AsyncClient(timeout=15.0) as http_client:
+            response = await http_client.post(
                 telegram_url,
                 json={
                     "chat_id": group_id,
                     "text": message,
                     "parse_mode": "Markdown"
-                },
-                timeout=10.0
+                }
             )
             
-            if response.status_code == 200:
-                result = response.json()
-                if result.get("ok"):
-                    # Log successful send
-                    await db.telegram_logs.insert_one({
-                        "id": str(uuid.uuid4()),
-                        "message": message,
-                        "game_ids": message_data.game_ids,
-                        "sent_at": datetime.now(timezone.utc).isoformat(),
-                        "status": "success"
-                    })
-                    return {"success": True, "message": "Mensagem enviada com sucesso!"}
-                else:
-                    raise HTTPException(status_code=400, detail=f"Erro Telegram: {result.get('description', 'Unknown error')}")
+            result = response.json()
+            
+            if response.status_code == 200 and result.get("ok"):
+                # Log successful send
+                await db.telegram_logs.insert_one({
+                    "id": str(uuid.uuid4()),
+                    "message": message,
+                    "game_ids": message_data.game_ids,
+                    "sent_at": datetime.now(timezone.utc).isoformat(),
+                    "status": "success"
+                })
+                return {"success": True, "message": "Mensagem enviada com sucesso!"}
             else:
-                raise HTTPException(status_code=response.status_code, detail="Falha ao enviar mensagem")
+                error_msg = result.get('description', 'Erro desconhecido')
+                # Log failed send
+                await db.telegram_logs.insert_one({
+                    "id": str(uuid.uuid4()),
+                    "message": message,
+                    "game_ids": message_data.game_ids,
+                    "sent_at": datetime.now(timezone.utc).isoformat(),
+                    "status": "failed",
+                    "error": error_msg
+                })
+                raise HTTPException(status_code=400, detail=f"Erro Telegram: {error_msg}")
                 
     except httpx.TimeoutException:
-        raise HTTPException(status_code=504, detail="Timeout ao conectar com Telegram")
+        raise HTTPException(status_code=504, detail="Timeout ao conectar com Telegram. Tente novamente.")
+    except httpx.ConnectError:
+        raise HTTPException(status_code=503, detail="Erro de conexao com Telegram. Verifique sua internet.")
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Telegram error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erro ao enviar: {str(e)}")
