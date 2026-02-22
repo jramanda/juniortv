@@ -279,7 +279,7 @@ async def create_signal(signal: GameSignalCreate):
     doc = signal_obj.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     
-    await db.signals.insert_one(doc)
+    await db.signals.insert_one(doc.copy())
     
     # Check if auto-send is enabled
     settings = await db.analysis_settings.find_one({}, {"_id": 0})
