@@ -1,0 +1,168 @@
+{
+  "project_name": "CornerKick-Pro-Stats",
+  "version": "1.0.0",
+  "identity": {
+    "name": "CornerKick Pro",
+    "persona": "Tactical Night Vision",
+    "tone": "Precision, Urgency, Data-Driven, Winning",
+    "description": "A professional-grade football statistics dashboard focused on corner kick probabilities and betting insights. Designed for the serious punter who needs clarity in the chaos.",
+    "anti_patterns": [
+      "No generic 'SaaS Blue' or 'Bootstrap' layouts.",
+      "No rounded, soft, friendly UI - this is a tool for war.",
+      "No 'Inter' for headings. No gradients on text."
+    ]
+  },
+  "typography": {
+    "fonts": {
+      "headings": {
+        "family": "Chivo",
+        "url": "https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&display=swap",
+        "fallback": "sans-serif",
+        "usage": "All section titles, card headers, and major metrics. Use uppercase for labels."
+      },
+      "body": {
+        "family": "Manrope",
+        "url": "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap",
+        "fallback": "sans-serif",
+        "usage": "General text, descriptions, and user inputs."
+      },
+      "mono": {
+        "family": "JetBrains Mono",
+        "url": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap",
+        "fallback": "monospace",
+        "usage": "ALL numeric data, odds, percentages, and timestamps."
+      }
+    },
+    "scale": {
+      "h1": "text-4xl md:text-5xl font-black tracking-tight uppercase",
+      "h2": "text-2xl md:text-3xl font-bold tracking-tight",
+      "h3": "text-xl font-bold uppercase tracking-wide",
+      "body": "text-base font-medium leading-relaxed",
+      "small": "text-sm text-slate-400 font-medium",
+      "mono_xl": "text-3xl font-mono font-bold tracking-tighter"
+    }
+  },
+  "colors": {
+    "theme": "dark",
+    "palette": {
+      "background": {
+        "default": "#020617",
+        "paper": "#0f172a",
+        "subtle": "#1e293b"
+      },
+      "primary": {
+        "main": "#22c55e",
+        "glow": "0 0 20px rgba(34, 197, 94, 0.5)",
+        "contrast": "#000000"
+      },
+      "secondary": {
+        "main": "#06b6d4",
+        "contrast": "#000000"
+      },
+      "danger": {
+        "main": "#ef4444",
+        "glow": "0 0 15px rgba(239, 68, 68, 0.4)"
+      },
+      "neutral": {
+        "text_primary": "#f8fafc",
+        "text_secondary": "#94a3b8",
+        "border": "#334155"
+      }
+    },
+    "gradients": {
+      "high_prob": "linear-gradient(135deg, #22c55e 0%, #166534 100%)",
+      "glass": "linear-gradient(180deg, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%)"
+    }
+  },
+  "layout": {
+    "grid_system": {
+      "type": "Bento Grid Mode B (High Density)",
+      "container": "grid grid-cols-1 md:grid-cols-12 gap-4 p-4 md:p-6 max-w-[1600px] mx-auto",
+      "sidebar_width": "w-64",
+      "header_height": "h-16"
+    },
+    "spacing": {
+      "section_gap": "gap-8",
+      "card_padding": "p-6",
+      "inner_padding": "p-4"
+    },
+    "z_index": {
+      "header": "z-50",
+      "modal": "z-50",
+      "toast": "z-50",
+      "dropdown": "z-40"
+    }
+  },
+  "components": {
+    "cards": {
+      "style": "flat",
+      "classes": "bg-slate-900/50 border border-slate-700/50 backdrop-blur-sm rounded-none md:rounded-sm overflow-hidden relative",
+      "hover": "hover:border-green-500/30 transition-colors duration-300"
+    },
+    "buttons": {
+      "primary": "bg-green-600 hover:bg-green-500 text-white font-bold uppercase tracking-wider px-6 py-3 rounded-sm shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all hover:-translate-y-0.5",
+      "secondary": "bg-transparent border border-slate-600 hover:border-slate-400 text-slate-300 px-6 py-3 rounded-sm uppercase tracking-wider transition-colors",
+      "icon": "p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+    },
+    "inputs": {
+      "style": "code-block",
+      "classes": "bg-black/40 border border-slate-700 focus:border-green-500 text-green-400 font-mono text-sm p-4 rounded-sm placeholder:text-slate-600 focus:ring-1 focus:ring-green-500/50 outline-none transition-all w-full"
+    },
+    "badges": {
+      "high_prob": "bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1 text-xs font-mono uppercase font-bold tracking-wider rounded-sm",
+      "live": "bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-0.5 text-[10px] font-mono uppercase animate-pulse rounded-sm"
+    }
+  },
+  "visual_enhancers": {
+    "scanlines": "pointer-events-none fixed inset-0 w-full h-full bg-[linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100%_4px] z-0",
+    "glow_effects": "Use drop-shadow for key metrics: drop-shadow-[0_0_8px_rgba(34,197,94,0.4)]",
+    "borders": "Use 'Grid Border' logic: border-r border-b border-slate-800 for table cells to create a spreadsheet feel."
+  },
+  "media": {
+    "images": {
+      "hero_background": {
+        "url": "https://images.pexels.com/photos/28827841/pexels-photo-28827841.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "desc": "Stadium Night Atmosphere - Use as subtle background with heavy overlay",
+        "category": "background"
+      },
+      "action_accent": {
+        "url": "https://images.pexels.com/photos/12313949/pexels-photo-12313949.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "desc": "Corner Kick Action - Use for 'Prognostics' or 'Insights' cards",
+        "category": "card_header"
+      },
+      "tactical_board": {
+        "url": "https://images.pexels.com/photos/35898730/pexels-photo-35898730.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "desc": "Tactical view - Use for 'Strategy/Settings' section",
+        "category": "section_bg"
+      }
+    },
+    "icons": "Use 'Lucide React' for all UI icons. Use 'Phosphor Icons' (if available) for specific sports icons."
+  },
+  "accessibility": {
+    "contrast": "Ensure all text labels are Slate-400 or lighter on Slate-900 backgrounds.",
+    "focus": "Focus states must be high-contrast Green-500 ring.",
+    "interactive": "All buttons must have a minimum target size of 44px."
+  },
+  "instructions_to_main_agent": [
+    "IMPERATIVE: Use the '.js' extension for all React files.",
+    "IMPERATIVE: Do not use gradients for text. It reduces legibility on data dashboards.",
+    "IMPERATIVE: Implement the 'Scanlines' visual enhancer as a global layout wrapper.",
+    "IMPERATIVE: For the Telegram Config, use the 'Code Block' input style defined in components.",
+    "IMPERATIVE: The 'High Probability' filter (>9 corners) must use the 'high_prob' badge style.",
+    "LAYOUT: Use a Sidebar layout for desktop, converting to a Bottom Nav or Hamburger for mobile.",
+    "DATA: Display averages in 'JetBrains Mono'. Format: 'Avg: 9.5' (Green if > 9, Slate if < 9).",
+    "TESTING: Add 'data-testid' to: Main Filter Button, Telegram Save Button, Game Card Container.",
+    "SHADCN: Customize Shadcn components (Card, Button, Input) to match the 'flat, sharp, border-heavy' aesthetic defined here. Remove default rounded-xl radius."
+  ],
+  "universal_guidelines": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts. Use grids.",
+    "Create depth through layered design elements (z-index) and borders, not shadows.",
+    "Use glass-morphism effects carefully - only for sticky headers (backdrop-blur-xl).",
+    "NEVER use AI assistant emojis.",
+    "Every interaction needs micro-animations (hover: text-green-400).",
+    "Use 2-3x more spacing than feels comfortable inside containers.",
+    "Prioritize using pre-existing components from src/components/ui.",
+    "Use 'sonner' for toasts."
+  ]
+}
