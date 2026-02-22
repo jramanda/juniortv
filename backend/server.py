@@ -262,7 +262,7 @@ async def update_settings(settings: AnalysisSettingsUpdate):
         default = AnalysisSettings(**update_data)
         doc = default.model_dump()
         doc['updated_at'] = doc['updated_at'].isoformat()
-        await db.analysis_settings.insert_one(doc)
+        await db.analysis_settings.insert_one(doc.copy())
     
     return {"success": True, "message": "Settings updated"}
 
