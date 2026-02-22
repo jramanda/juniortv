@@ -242,8 +242,9 @@ async def get_settings():
         default = AnalysisSettings()
         doc = default.model_dump()
         doc['updated_at'] = doc['updated_at'].isoformat()
-        await db.analysis_settings.insert_one(doc)
-        return doc
+        await db.analysis_settings.insert_one(doc.copy())
+        # Return without _id
+        return {k: v for k, v in doc.items() if k != '_id'}
     return settings
 
 @api_router.put("/settings")
